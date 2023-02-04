@@ -1,0 +1,33 @@
+{
+  "name": "projet_school-appli",
+  "version": "1.0.0",
+  "description": "An GraphQL project which aims to model a school system",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/pauld01/school_api.git"
+  },
+  "author": "Paul D",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pauld01/school_api/issues"
+  },
+  "homepage": "https://github.com/pauld01/school_api#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^16.6.0",
+    "nodemon": "^2.0.20"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "prisma": "^4.9.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  },
+  "keywords": []
+}
