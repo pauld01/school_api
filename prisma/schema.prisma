@@ -6,6 +6,129 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model pole {
+  id_pole     Int     @id @default(autoincrement())
+  nom_pole    String  @db.VarChar(50)
+  parcours    parcours[]
+}
+
+model statut {
+  id_statut   Int     @id @default(autoincrement())
+  nom_statut  String  @db.VarChar(50)
+  personnel   personnel[]
+}
+
+model promo {
+  id_promo      Int     @id @default(autoincrement())
+  annees_promo  String  @db.VarChar(10)
+  classe        classe[]
+}
+
+model personnel {
+  id_personnel      Int     @id @default(autoincrement())
+  nom_personnel     String  @db.VarChar(50)
+  prenom_personnel  String  @db.VarChar(50)
+  mail_personnel    String  @db.VarChar(150)
+  tel_personnel     String  @db.VarChar(20)
+  ville_personnel   String  @db.VarChar(250)
+  id_statut         Int
+  statut            statut  @relation(fields: [id_statut], references: [id_statut], onUpdate: Restrict, map: "personnel_ibfk_1")
+  parcours          parcours[]
+  cours             cours[]
+  note              note[]
+
+  @@index([id_statut], map: "id_statut")
+}
+
+model parcours {
+  id_parcours     Int         @id @default(autoincrement())
+  nom_parcours    String      @db.VarChar(75)
+  programme       String      @db.VarChar(75)
+  id_personnel    Int
+  id_pole         Int
+  responsable     personnel   @relation(fields: [id_personnel], references: [id_personnel], onUpdate: Restrict, map: "parcours_ibfk_1")
+  pole            pole        @relation(fields: [id_pole], references: [id_pole], onUpdate: Restrict, map: "parcours_ibfk2")
+  matiere         matiere[]
+
+  @@index([id_personnel], map: "id_personnel")
+  @@index([id_pole], map: "id_pole")
+}
+
+model matiere {
+  id_matiere    Int       @id @default(autoincrement())
+  nom_matiere   String    @db.VarChar(50)
+  id_parcours   Int
+  parcours      parcours  @relation(fields: [id_parcours], references: [id_parcours], onUpdate: Restrict, map: "matiere_ibfk_1")
+  cours         cours[]
+  note          note[]
+
+  @@index([id_parcours], map: "id_parcours")
+}
+
+model classe {
+  id_classe     Int       @id @default(autoincrement())
+  nom_classe    String    @db.VarChar(50)
+  groupe        Int
+  id_promo      Int
+  id_parcours   Int
+  promo         promo     @relation(fields: [id_promo], references: [id_promo], onUpdate: Restrict, map: "classe_ibfk_1")
+  parcours      parcours  @relation(fields: [id_parcours], references: [id_parcours], onUpdate: Restrict, map: "classe_ibfk_2")
+  etudiant      etudiant[]
+  cours         cours[]
+
+  @@index([id_promo], map: "id_promo")
+  @@index([id_parcours], map: "id_parcours")
+}
+
+model etudiant {
+  id_etudiant               Int       @id @default(autoincrement())
+  nom_etudiant              String    @db.VarChar(50)
+  prenom_etudiant           String    @db.VarChar(50)
+  mail_etudiant             String    @db.VarChar(150)
+  tel_etudiant              String    @db.VarChar(20)
+  anneeNaissance_etudiant   Int
+  ville_etudiant            String    @db.varChar(250)
+  id_classe                 Int
+  classe                    classe  @relation(fields: [id_classe], references: [id_classe], onUpdate: Restrict, map: "etudiant_ibfk_1")
+  note                      note[]
+
+  @@index([id_classe], map: "id_classe")
+}
+
+model cours {
+  id_cours        Int       @id @default(autoincrement())
+  date_cours      DateTime  @db.Date
+  heure_debut     DateTime  @db.Time
+  heure_fin       DateTime  @db.Time
+  formateur       Int
+  id_matiere      Int
+  id_classe       Int
+  personnel       personnel @relation(fields: [formateur], references: [id_personnel], onUpdate: Restrict, map: "cours_ibfk_1")
+  matiere         matiere   @relation(fields: [id_matiere], references: [id_matiere], onUpdate: Restrict, map: "cours_ibfk_2")
+  classe          classe    @relation(fields: [id_classe], references: [id_classe], onUpdate: Restrict, map: "cours_ibfk_3")
+  note            note[]
+
+  @@index([formateur], map: "fomateur")
+  @@index([id_matiere], map: "id_classe")
+  @@index([id_classe], map: "id_classe")
+}
+
+model note {
+  id_note       Int        @id @default(autoincrement())
+  date_cours    DateTime   @db.Date
+  note          Int
+  id_etudiant   Int
+  id_matiere    Int
+  formateur     Int
+  etudiant        etudiant    @relation(fields: [id_classe], references: [id_classe], onUpdate: Restrict, map: "note_ibfk_1")
+  matiere         matiere     @relation(fields: [id_matiere], references: [id_matiere], onUpdate: Restrict, map: "note_ibfk_2")
+  personnel       personnel   @relation(fields: [formateur], references: [id_personnel], onUpdate: Restrict, map: "note_ibfk_3")
+ 
+  @@index([id_etudiant], map: "id_etudiant")
+  @@index([id_matiere], map: "id_matiere")
+  @@index([formateur], map: "fomateur")
 }
