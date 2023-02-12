@@ -11,6 +11,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/pauld01/school_api.git"
   },
+  "type": "module",
   "author": "Paul D",
   "license": "ISC",
   "bugs": {

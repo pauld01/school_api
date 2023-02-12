@@ -89,9 +89,9 @@ let schema = buildSchema(`
 
     type Cours {
         id_cours : Int
-        date_cours : date
-        heure_debut : time
-        heure_fin : time
+        date_cours : String
+        heure_debut : String
+        heure_fin : String
         formateur : Int
         id_matiere : Int
         id_classe : Int
@@ -102,7 +102,7 @@ let schema = buildSchema(`
 
     type Note {
         id_note : Int
-        date_note : date
+        date_note : String
         note : Int
         id_etudiant : Int
         id_matiere : Int
@@ -113,19 +113,103 @@ let schema = buildSchema(`
     }
 
     type Query {
-
-    }
-
-    type Mutation {
-        
+        getPoles : [Pole]
+        getStatuts : [Statut]
+        getPromos : [Promo]
+        getPersonnels : [Personnel]
+        getParcours : [Parcours]
+        getMatieres : [Matiere]
+        getClasses : [Classe]
+        getEtudiants : [Etudiant]
+        getCours : [Cours]
+        getNotes : [Note]
     }
 `)
 
 let root = {
-    
+    getPoles : async () => {
+        return await prisma.pole.findMany({
+            include:{parcours:{}}
+        })
+    },
+    getStatuts : async () => {
+        return await prisma.statut.findMany({
+            include:{personnel:{}}
+        })
+    },
+    getPromos : async () => {
+        return await prisma.promo.findMany({
+            include:{classe:{}}
+        })
+    },
+    getPersonnels : async () => {
+        return await prisma.personnel.findMany({
+            include:{
+                statut:{},
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    getParcours : async () => {
+        return await prisma.parcours.findMany({
+            include:{
+                personnel:{},
+                pole:{},
+                matiere:{},
+                classe:{}
+            }
+        })
+    },
+    getMatieres : async () => {
+        return await prisma.matiere.findMany({
+            include:{
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    getClasses : async () => {
+        return await prisma.classe.findMany({
+            include:{
+                promo:{},
+                parcours:{},
+                etudiant:{},
+                cours:{}
+            }
+        })
+    },
+    getEtudiants : async () => {
+        return await prisma.etudiant.findMany({
+            include:{
+                classe:{},
+                note:{}
+            }
+        })
+    },
+    getCours : async () => {
+        return await prisma.cours.findMany({
+            include:{
+                personnel:{},
+                matiere:{},
+                classe:{}
+            }
+        })
+    },
+    getNotes : async () => {
+        return await prisma.note.findMany({
+            include:{
+                etudiant:{},
+                personnel:{},
+                matiere:{}
+            }
+        })
+    }
 }
 
-app.use("/shcool", graphqlHTTP({
+app.use("/school", graphqlHTTP({
     schema : schema,
     rootValue : root,
     graphiql : true
