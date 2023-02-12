@@ -124,12 +124,51 @@ let schema = buildSchema(`
         getCours : [Cours]
         getNotes : [Note]
     }
+
+    type Mutation {
+        addPole(nom_pole: String!): [Pole]
+        removePole(id_pole: Int!): [Pole]
+        updatePole(id_pole: Int!, nom_pole: String!): [Pole]
+    }
 `)
 
 let root = {
     getPoles : async () => {
         return await prisma.pole.findMany({
             include:{parcours:{}}
+        })
+    },
+    addPole : async ({nom_pole}) => {
+        await prisma.pole.create({
+            data:{
+                nom_pole : nom_pole
+            }
+        })
+        return await prisma.pole.findMany({
+            include: {parcours:{}}
+        })
+    },
+    removePole : async ({id_pole}) => {
+        await prisma.pole.delete({
+            where:{
+                id_pole : id_pole 
+            }
+        })
+        return await prisma.pole.findMany({
+            include: {parcours:{}}
+        })
+    },
+    updatePole : async ({id_pole, nom_pole}) => {        
+        await prisma.pole.update({
+            where: {
+              id_pole: id_pole,
+            },
+            data: {
+                nom_pole: nom_pole,
+            }
+        })
+        return await prisma.pole.findMany({
+            include: {parcours:{}}
         })
     },
     getStatuts : async () => {
