@@ -53,6 +53,7 @@ model parcours {
   responsable     personnel   @relation(fields: [id_personnel], references: [id_personnel], onUpdate: Restrict, map: "parcours_ibfk_1")
   pole            pole        @relation(fields: [id_pole], references: [id_pole], onUpdate: Restrict, map: "parcours_ibfk2")
   matiere         matiere[]
+  classe          classe[]
 
   @@index([id_personnel], map: "id_personnel")
   @@index([id_pole], map: "id_pole")
@@ -91,7 +92,7 @@ model etudiant {
   mail_etudiant             String    @db.VarChar(150)
   tel_etudiant              String    @db.VarChar(20)
   anneeNaissance_etudiant   Int
-  ville_etudiant            String    @db.varChar(250)
+  ville_etudiant            String    @db.VarChar(250)
   id_classe                 Int
   classe                    classe  @relation(fields: [id_classe], references: [id_classe], onUpdate: Restrict, map: "etudiant_ibfk_1")
   note                      note[]
@@ -110,21 +111,20 @@ model cours {
   personnel       personnel @relation(fields: [formateur], references: [id_personnel], onUpdate: Restrict, map: "cours_ibfk_1")
   matiere         matiere   @relation(fields: [id_matiere], references: [id_matiere], onUpdate: Restrict, map: "cours_ibfk_2")
   classe          classe    @relation(fields: [id_classe], references: [id_classe], onUpdate: Restrict, map: "cours_ibfk_3")
-  note            note[]
 
   @@index([formateur], map: "fomateur")
-  @@index([id_matiere], map: "id_classe")
+  @@index([id_matiere], map: "id_matiere")
   @@index([id_classe], map: "id_classe")
 }
 
 model note {
   id_note       Int        @id @default(autoincrement())
-  date_cours    DateTime   @db.Date
+  date_note    DateTime   @db.Date
   note          Int
   id_etudiant   Int
   id_matiere    Int
   formateur     Int
-  etudiant        etudiant    @relation(fields: [id_classe], references: [id_classe], onUpdate: Restrict, map: "note_ibfk_1")
+  etudiant        etudiant    @relation(fields: [id_etudiant], references: [id_etudiant], onUpdate: Restrict, map: "note_ibfk_1")
   matiere         matiere     @relation(fields: [id_matiere], references: [id_matiere], onUpdate: Restrict, map: "note_ibfk_2")
   personnel       personnel   @relation(fields: [formateur], references: [id_personnel], onUpdate: Restrict, map: "note_ibfk_3")
  
