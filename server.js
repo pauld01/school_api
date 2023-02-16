@@ -135,6 +135,9 @@ let schema = buildSchema(`
         addPromo(annees_promo: String!): [Promo]
         removePromo(id_promo: Int!): [Promo]
         updatePromo(id_promo: Int!, annees_promo: String!): [Promo]
+        addPersonnel(nom_personnel: String!, prenom_personnel: String, mail_personnel: String, tel_personnel: String, ville_personnel: String, id_statut: Int!, nom_statut: String): [Personnel]
+        removePersonnel(id_personnel: Int!): [Personnel]
+        updatePersonnel(id_personnel: Int!, nom_personnel: String, prenom_personnel: String, mail_personnel: String, tel_personnel: String, ville_personnel: String, id_statut: Int!, nom_statut: String): [Personnel]
     }
 `)
 
@@ -256,6 +259,95 @@ let root = {
     getPersonnels : async () => {
         return await prisma.personnel.findMany({
             include:{
+                statut:{},
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    addPersonnel : async ({nom_personnel, prenom_personnel, mail_personnel, tel_personnel, ville_personnel, id_statut, nom_statut}) => {
+        let prenom = prenom_personnel !== null ? prenom_personnel : undefined
+        let mail = mail_personnel !== null ? mail_personnel : undefined
+        let tel = tel_personnel !== null ? tel_personnel : undefined
+        let ville = ville_personnel !== null ? ville_personnel : undefined
+
+        await prisma.personnel.create({
+            data:{
+                nom_personnel : nom_personnel,
+                prenom_personnel : prenom,
+                mail_personnel : mail,
+                tel_personnel : tel,
+                ville_personnel : ville, 
+                statut: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_statut : Number (id_statut)
+                        },
+                        create:{
+                            nom_statut : nom_statut
+                        }
+                    }
+                }
+            }
+        })
+        return await prisma.personnel.findMany({
+            include: {
+                statut:{},
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    removePersonnel : async ({id_personnel}) => {
+        await prisma.personnel.delete({
+            where:{
+                id_personnel : id_personnel 
+            }
+        })
+        return await prisma.personnel.findMany({
+            include: {
+                statut:{},
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    updatePersonnel : async ({id_personnel, nom_personnel, prenom_personnel, mail_personnel, tel_personnel, ville_personnel, id_statut, nom_statut}) => {        
+        let nom = nom_personnel !== null ? nom_personnel : undefined
+        let prenom = prenom_personnel !== null ? prenom_personnel : undefined
+        let mail = mail_personnel !== null ? mail_personnel : undefined
+        let tel = tel_personnel !== null ? tel_personnel : undefined
+        let ville = ville_personnel !== null ? ville_personnel : undefined
+        
+        await prisma.personnel.update({
+            where: {
+              id_personnel: id_personnel,
+            },
+            data: {
+                nom_personnel: nom,
+                prenom_personnel: prenom,
+                mail_personnel: mail,
+                tel_personnel: tel,
+                ville_personnel: ville,
+                statut: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_statut : Number (id_statut)
+                        },
+                        create:{
+                            nom_statut : nom_statut
+                        }
+                    }
+                }
+            }
+        })
+        return await prisma.personnel.findMany({
+            include: {
                 statut:{},
                 parcours:{},
                 cours:{},
