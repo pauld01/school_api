@@ -23,7 +23,7 @@ let schema = buildSchema(`
 
     type Promo {
         id_promo : Int
-        annnes_promo : String
+        annnees_promo : String
         classe : [Classe]
     }
 
@@ -129,6 +129,12 @@ let schema = buildSchema(`
         addPole(nom_pole: String!): [Pole]
         removePole(id_pole: Int!): [Pole]
         updatePole(id_pole: Int!, nom_pole: String!): [Pole]
+        addStatut(nom_statut: String!): [Statut]
+        removeStatut(id_statut: Int!): [Statut]
+        updateStatut(id_statut: Int!, nom_statut: String!): [Statut]
+        addPromo(annnees_promo: String!): [Promo]
+        removePromo(id_promo: Int!): [Promo]
+        updatePromo(id_promo: Int!, nom_pole: String!): [Promo]
     }
 `)
 
@@ -174,6 +180,39 @@ let root = {
     getStatuts : async () => {
         return await prisma.statut.findMany({
             include:{personnel:{}}
+        })
+    },
+    addStatut : async ({nom_statut}) => {
+        await prisma.statut.create({
+            data:{
+                nom_statut : nom_statut
+            }
+        })
+        return await prisma.statut.findMany({
+            include: {personnel:{}}
+        })
+    },
+    removeStatut : async ({id_statut}) => {
+        await prisma.statut.delete({
+            where:{
+                id_statut : id_statut 
+            }
+        })
+        return await prisma.statut.findMany({
+            include: {personnel:{}}
+        })
+    },
+    updateStatut : async ({id_statut, nom_statut}) => {        
+        await prisma.statut.update({
+            where: {
+              id_statut: id_statut,
+            },
+            data: {
+                nom_statut: nom_statut,
+            }
+        })
+        return await prisma.statut.findMany({
+            include: {personnel:{}}
         })
     },
     getPromos : async () => {
