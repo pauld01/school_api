@@ -23,7 +23,7 @@ let schema = buildSchema(`
 
     type Promo {
         id_promo : Int
-        annnees_promo : String
+        annees_promo : String
         classe : [Classe]
     }
 
@@ -132,9 +132,9 @@ let schema = buildSchema(`
         addStatut(nom_statut: String!): [Statut]
         removeStatut(id_statut: Int!): [Statut]
         updateStatut(id_statut: Int!, nom_statut: String!): [Statut]
-        addPromo(annnees_promo: String!): [Promo]
+        addPromo(annees_promo: String!): [Promo]
         removePromo(id_promo: Int!): [Promo]
-        updatePromo(id_promo: Int!, nom_pole: String!): [Promo]
+        updatePromo(id_promo: Int!, annees_promo: String!): [Promo]
     }
 `)
 
@@ -218,6 +218,39 @@ let root = {
     getPromos : async () => {
         return await prisma.promo.findMany({
             include:{classe:{}}
+        })
+    },
+    addPromo : async ({annees_promo}) => {
+        await prisma.promo.create({
+            data:{
+                annees_promo : annees_promo
+            }
+        })
+        return await prisma.promo.findMany({
+            include: {classe:{}}
+        })
+    },
+    removePromo : async ({id_promo}) => {
+        await prisma.promo.delete({
+            where:{
+                id_promo : id_promo 
+            }
+        })
+        return await prisma.promo.findMany({
+            include: {classe:{}}
+        })
+    },
+    updatePromo : async ({id_promo, annees_promo}) => {        
+        await prisma.promo.update({
+            where: {
+              id_promo: id_promo,
+            },
+            data: {
+                annees_promo: annees_promo,
+            }
+        })
+        return await prisma.promo.findMany({
+            include: {classe:{}}
         })
     },
     getPersonnels : async () => {
