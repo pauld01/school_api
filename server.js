@@ -138,6 +138,9 @@ let schema = buildSchema(`
         addPersonnel(nom_personnel: String!, prenom_personnel: String, mail_personnel: String, tel_personnel: String, ville_personnel: String, id_statut: Int!, nom_statut: String): [Personnel]
         removePersonnel(id_personnel: Int!): [Personnel]
         updatePersonnel(id_personnel: Int!, nom_personnel: String, prenom_personnel: String, mail_personnel: String, tel_personnel: String, ville_personnel: String, id_statut: Int!, nom_statut: String): [Personnel]
+        addParcours(nom_parcours: String!, programme: String, id_personnel: Int!, id_pole: Int!, nom_pole: String): [Parcours]
+        removeParcours(id_parcours: Int!): [Parcours]
+        updateParcours(id_parcours: Int!, nom_parcours: String, programme: String, id_personnel: Int!, id_pole: Int!, nom_pole: String): [Parcours]
     }
 `)
 
@@ -359,6 +362,95 @@ let root = {
         return await prisma.parcours.findMany({
             include:{
                 personnel:{},
+                pole:{},
+                matiere:{},
+                classe:{}
+            }
+        })
+    },
+    addParcours : async ({nom_parcours, programme, id_personnel, id_pole, nom_pole}) => {
+        let programme_parcours = programme !== null ? programme : undefined
+        let pole = nom_pole !== null ? nom_pole : undefined
+
+        await prisma.parcours.create({
+            data:{
+                nom_parcours : nom_parcours,
+                programme : programme_parcours,
+                responsable: {
+                    connect:{
+                        id_personnel : Number (id_personnel)
+                    }
+                },
+                pole: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_pole : Number (id_pole)
+                        },
+                        create:{
+                            nom_pole : pole
+                        }
+                    }
+                }
+            }
+        })
+        return await prisma.parcours.findMany({
+            include: {
+                responsable:{},
+                pole:{},
+                matiere:{},
+                classe:{}
+            }
+        })
+    },
+    removeParcours : async ({id_parcours}) => {
+        await prisma.parcours.delete({
+            where:{
+                id_parcours : id_parcours 
+            }
+        })
+        return await prisma.parcours.findMany({
+            include: {
+                responsable:{},
+                pole:{},
+                matiere:{},
+                classe:{}
+            }
+        })
+    },
+    updateParcours : async ({id_parcours, nom_parcours, programme, id_personnel, id_pole, nom_pole}) => {        
+        let nom = nom_parcours !== null ? nom_parcours : undefined
+        let programme_parcours = programme !== null ? programme : undefined
+        let pole = nom_pole !== null ? nom_pole : undefined
+        
+        await prisma.parcours.update({
+            where: {
+              id_parcours: id_parcours,
+            },
+            data: {
+                nom_parcours: nom,
+                programme: programme_parcours,
+                responsable: {
+                    connect:{
+                        id_personnel : Number (id_personnel)
+                    }
+                },
+                pole: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_pole : Number (id_pole)
+                        },
+                        create:{
+                            nom_pole : pole
+                        }
+                    }
+                }
+            }
+        })
+        return await prisma.parcours.findMany({
+            include: {
+                responsable:{},
                 pole:{},
                 matiere:{},
                 classe:{}
