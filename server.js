@@ -138,9 +138,20 @@ let schema = buildSchema(`
         addPersonnel(nom_personnel: String!, prenom_personnel: String, mail_personnel: String, tel_personnel: String, ville_personnel: String, id_statut: Int!, nom_statut: String): [Personnel]
         removePersonnel(id_personnel: Int!): [Personnel]
         updatePersonnel(id_personnel: Int!, nom_personnel: String, prenom_personnel: String, mail_personnel: String, tel_personnel: String, ville_personnel: String, id_statut: Int!, nom_statut: String): [Personnel]
-        addParcours(nom_parcours: String!, programme: String, id_personnel: Int!, id_pole: Int!, nom_pole: String): [Parcours]
+        addParcours(nom_parcours: String!, programme: String, id_personnel: Int, id_pole: Int, nom_pole: String): [Parcours]
         removeParcours(id_parcours: Int!): [Parcours]
         updateParcours(id_parcours: Int!, nom_parcours: String, programme: String, id_personnel: Int!, id_pole: Int!, nom_pole: String): [Parcours]
+        addMatiere(nom_matiere: String!, id_parcours: Int!, nom_parcours: String): [Matiere]
+        removeMatiere(id_matiere: Int!): [Matiere]
+        updateMatiere(id_matiere: Int!, nom_matiere: String, id_parcours: Int!, nom_parcours: String): [Matiere]
+
+        addClasse(nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
+        removeClasse(id_classe: Int!): [Classe]
+        updateClasse(id_classe: Int!, nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
+
+        addEtudiant(nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
+        removeEtudiant(id_etudiant: Int!): [Etudiant]
+        updateEtudiant(id_etudiant: Int!, nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
     }
 `)
 
@@ -466,6 +477,80 @@ let root = {
             }
         })
     },
+    addMatiere : async ({nom_matiere, id_parcours, nom_parcours}) => {
+        let nom = nom_matiere !== null ? nom_matiere : undefined
+        let parcours = nom_parcours !== null ? nom_parcours : undefined
+        let p = id_parcours !== null ? id_parcours : undefined
+
+        await prisma.matiere.create({
+            data:{
+                nom_matiere : nom,
+                parcours: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_parcours : Number (p)
+                        },
+                        create:{
+                            nom_parcours : parcours
+                        }
+                    }
+                }
+            }
+        })
+        return await prisma.matiere.findMany({
+            include: {
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    removeMatiere : async ({id_matiere}) => {
+        await prisma.matiere.delete({
+            where:{
+                id_matiere : id_matiere 
+            }
+        })
+        return await prisma.matiere.findMany({
+            include: {
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    updateMatiere : async ({id_matiere, nom_matiere, id_parcours, nom_parcours}) => {               
+        let nom = nom_matiere !== null ? nom_matiere : undefined
+        let parcours = nom_parcours !== null ? nom_parcours : undefined
+
+        await prisma.matiere.update({
+            where: {
+                id_matiere: id_matiere,
+            },
+            data:{
+                nom_matiere : nom,
+                parcours: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_parcours : Number (id_parcours)
+                        },
+                        create:{
+                            nom_parcours : parcours
+                        }
+                    }
+                }
+            }
+        })
+        return await prisma.matiere.findMany({
+            include: {
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
     getClasses : async () => {
         return await prisma.classe.findMany({
             include:{
@@ -476,9 +561,173 @@ let root = {
             }
         })
     },
+    addPersonnel : async ({nom_personnel, prenom_personnel, mail_personnel, tel_personnel, ville_personnel, id_statut, nom_statut}) => {
+        let prenom = prenom_personnel !== null ? prenom_personnel : undefined
+        let mail = mail_personnel !== null ? mail_personnel : undefined
+        let tel = tel_personnel !== null ? tel_personnel : undefined
+        let ville = ville_personnel !== null ? ville_personnel : undefined
+
+        await prisma.personnel.create({
+            data:{
+                nom_personnel : nom_personnel,
+                prenom_personnel : prenom,
+                mail_personnel : mail,
+                tel_personnel : tel,
+                ville_personnel : ville, 
+                statut: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_statut : Number (id_statut)
+                        },
+                        create:{
+                            nom_statut : nom_statut
+                        }
+                    }
+                }
+            }
+        })
+        return await prisma.personnel.findMany({
+            include: {
+                statut:{},
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    removePersonnel : async ({id_personnel}) => {
+        await prisma.personnel.delete({
+            where:{
+                id_personnel : id_personnel 
+            }
+        })
+        return await prisma.personnel.findMany({
+            include: {
+                statut:{},
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    updatePersonnel : async ({id_personnel, nom_personnel, prenom_personnel, mail_personnel, tel_personnel, ville_personnel, id_statut, nom_statut}) => {        
+        let nom = nom_personnel !== null ? nom_personnel : undefined
+        let prenom = prenom_personnel !== null ? prenom_personnel : undefined
+        let mail = mail_personnel !== null ? mail_personnel : undefined
+        let tel = tel_personnel !== null ? tel_personnel : undefined
+        let ville = ville_personnel !== null ? ville_personnel : undefined
+        
+        await prisma.personnel.update({
+            where: {
+              id_personnel: id_personnel,
+            },
+            data: {
+                nom_personnel: nom,
+                prenom_personnel: prenom,
+                mail_personnel: mail,
+                tel_personnel: tel,
+                ville_personnel: ville,
+                statut: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_statut : Number (id_statut)
+                        },
+                        create:{
+                            nom_statut : nom_statut
+                        }
+                    }
+                }
+            }
+        })
+        return await prisma.personnel.findMany({
+            include: {
+                statut:{},
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
     getEtudiants : async () => {
         return await prisma.etudiant.findMany({
             include:{
+                classe:{},
+                note:{}
+            }
+        })
+    },
+    addEtudiant : async ({nom_etudiant, prenom_etudiant, mail_etudiant, tel_etudiant, anneeNaissance_etudiant, ville_etudiant, id_classe}) => {
+        let prenom = prenom_etudiant !== null ? prenom_etudiant : undefined
+        let mail = mail_etudiant !== null ? mail_etudiant : undefined
+        let tel = tel_etudiant !== null ? tel_etudiant : undefined
+        let naissance = anneeNaissance_etudiant !== null ? anneeNaissance_etudiant : undefined
+        let ville = ville_etudiant !== null ? ville_etudiant : undefined
+
+        await prisma.etudiant.create({
+            data:{
+                nom_etudiant : nom_etudiant,
+                prenom_etudiant : prenom,
+                mail_etudiant : mail,
+                tel_etudiant : tel,
+                anneeNaissance_etudiant : naissance,
+                ville_etudiant : ville, 
+                classe: {
+                    connect:{
+                        id_classe : Number (id_classe)
+                    }
+                }
+            }
+        })
+        return await prisma.etudiant.findMany({
+            include: {
+                classe:{},
+                note:{}
+            }
+        })
+    },
+    removeEtudiant : async ({id_etudiant}) => {
+        await prisma.etudiant.delete({
+            where:{
+                id_etudiant : id_etudiant 
+            }
+        })
+        return await prisma.etudiant.findMany({
+            include: {
+                classe:{},
+                note:{}
+            }
+        })
+    },
+    updateEtudiant : async ({id_etudiant, nom_etudiant, prenom_etudiant, mail_etudiant, tel_etudiant, anneeNaissance_etudiant, ville_etudiant, id_classe}) => {        
+        let nom = nom_etudiant !== null ? nom_etudiant : undefined
+        let prenom = prenom_etudiant !== null ? prenom_etudiant : undefined
+        let mail = mail_etudiant !== null ? mail_etudiant : undefined
+        let tel = tel_etudiant !== null ? tel_etudiant : undefined
+        let naissance = anneeNaissance_etudiant !== null ? anneeNaissance_etudiant : undefined
+        let ville = ville_etudiant !== null ? ville_etudiant : undefined
+
+        await prisma.etudiant.update({
+            where: {
+              id_etudiant: id_etudiant,
+            },
+            data:{
+                nom_etudiant : nom,
+                prenom_etudiant : prenom,
+                mail_etudiant : mail,
+                tel_etudiant : tel,
+                anneeNaissance_etudiant : naissance,
+                ville_etudiant : ville, 
+                classe: {
+                    connect:{
+                        id_classe : Number (id_classe)
+                    }
+                }
+            }
+        })
+        return await prisma.etudiant.findMany({
+            include: {
                 classe:{},
                 note:{}
             }
