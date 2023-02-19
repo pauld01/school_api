@@ -150,13 +150,12 @@ let schema = buildSchema(`
         addEtudiant(nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
         removeEtudiant(id_etudiant: Int!): [Etudiant]
         updateEtudiant(id_etudiant: Int!, nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
-
         addCours(date_cours: String!, heure_debut: String!, heure_fin: String!, formateur: Int, id_matiere: Int, id_classe: Int): [Cours]
         removeCours(id_cours: Int!): [Cours]
         updateCours(id_cours: Int!, date_cours: String, heure_debut: String, heure_fin: String, formateur: Int, id_matiere: Int, id_classe: Int): [Cours]
-        addNote(date_note: String!, note: Int!, id_etudiant: Int!, id_matiere: Int!, id_personnel: Int!): [Note]
-        removeCours(id_note: Int!): [Note]
-        updateCours(id_note: Int!, date_note: String, note: Int, id_etudiant: Int, id_matiere: Int, id_personnel: Int): [Note]
+        addNote(date_note: String!, note: Int!, id_etudiant: Int!, id_matiere: Int!, formateur: Int!): [Note]
+        removeNote(id_note: Int!): [Note]
+        updateNote(id_note: Int!, date_note: String, note: Int, id_etudiant: Int, id_matiere: Int, formateur: Int): [Note]
     }
 `)
 
@@ -844,6 +843,85 @@ let root = {
                 etudiant:{},
                 personnel:{},
                 matiere:{}
+            }
+        })
+    },
+    addNote : async ({date_note, note, id_etudiant, id_matiere, formateur}) => {
+        await prisma.note.create({
+            data:{
+                date_note : date_note,
+                note : note,
+                heure_fin : heure_fin,
+                etudiant: {
+                    connect:{
+                        id_etudiant : Number (id_etudiant)
+                    }
+                },
+                matiere: {
+                    connect:{
+                        id_matiere : Number (id_matiere)
+                    }
+                },
+                personnel: {
+                    connect:{
+                        formateur : Number (formateur)
+                    }
+                }
+            }
+        })
+        return await prisma.note.findMany({
+            include: {
+                etudiant:{},
+                matiere:{},
+                personnel:{}
+            }
+        })
+    },
+    removeNote : async ({id_note}) => {
+        await prisma.note.delete({
+            where:{
+                id_note : id_note 
+            }
+        })
+        return await prisma.note.findMany({
+            include: {
+                etudiant:{},
+                matiere:{},
+                personnel:{}
+            }
+        })
+    },
+    updateNote : async ({id_note, note, id_etudiant, id_matiere, formateur}) => {        
+        await prisma.note.update({
+            where:{
+                id_note : id_note 
+            },
+            data:{
+                date_note : date_note,
+                note : note,
+                heure_fin : heure_fin,
+                etudiant: {
+                    connect:{
+                        id_etudiant : Number (id_etudiant)
+                    }
+                },
+                matiere: {
+                    connect:{
+                        id_matiere : Number (id_matiere)
+                    }
+                },
+                personnel: {
+                    connect:{
+                        formateur : Number (formateur)
+                    }
+                }
+            }
+        })
+        return await prisma.note.findMany({
+            include: {
+                etudiant:{},
+                matiere:{},
+                personnel:{}
             }
         })
     }
