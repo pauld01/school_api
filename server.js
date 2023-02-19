@@ -144,11 +144,9 @@ let schema = buildSchema(`
         addMatiere(nom_matiere: String!, id_parcours: Int!, nom_parcours: String): [Matiere]
         removeMatiere(id_matiere: Int!): [Matiere]
         updateMatiere(id_matiere: Int!, nom_matiere: String, id_parcours: Int!, nom_parcours: String): [Matiere]
-
         addClasse(nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
         removeClasse(id_classe: Int!): [Classe]
         updateClasse(id_classe: Int!, nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
-
         addEtudiant(nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
         removeEtudiant(id_etudiant: Int!): [Etudiant]
         updateEtudiant(id_etudiant: Int!, nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
@@ -561,92 +559,104 @@ let root = {
             }
         })
     },
-    addPersonnel : async ({nom_personnel, prenom_personnel, mail_personnel, tel_personnel, ville_personnel, id_statut, nom_statut}) => {
-        let prenom = prenom_personnel !== null ? prenom_personnel : undefined
-        let mail = mail_personnel !== null ? mail_personnel : undefined
-        let tel = tel_personnel !== null ? tel_personnel : undefined
-        let ville = ville_personnel !== null ? ville_personnel : undefined
+    addClasse : async ({nom_classe, groupe, id_parcours, nom_parcours, id_promo, annees_promo}) => {
+        let parcours = nom_parcours !== null ? nom_parcours : undefined
+        let promo = annees_promo !== null ? annees_promo : undefined
 
-        await prisma.personnel.create({
+        await prisma.classe.create({
             data:{
-                nom_personnel : nom_personnel,
-                prenom_personnel : prenom,
-                mail_personnel : mail,
-                tel_personnel : tel,
-                ville_personnel : ville, 
-                statut: {
+                nom_classe : nom_classe,
+                groupe : groupe,
+                parcours: {
                     connectOrCreate :
                     {
                         where : {
-                            id_statut : Number (id_statut)
+                            id_parcours : Number (id_parcours)
                         },
                         create:{
-                            nom_statut : nom_statut
+                            nom_parcours : parcours
+                        }
+                    }
+                },
+                promo: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_promo : Number (id_promo)
+                        },
+                        create:{
+                            annees_promo : promo
                         }
                     }
                 }
             }
         })
-        return await prisma.personnel.findMany({
+        return await prisma.classe.findMany({
             include: {
-                statut:{},
+                promo:{},
                 parcours:{},
-                cours:{},
-                note:{}
+                etudiant:{},
+                cours:{}
             }
         })
     },
-    removePersonnel : async ({id_personnel}) => {
-        await prisma.personnel.delete({
+    removeClasse : async ({id_classe}) => {
+        await prisma.classe.delete({
             where:{
-                id_personnel : id_personnel 
+                id_classe : id_classe 
             }
         })
-        return await prisma.personnel.findMany({
+        return await prisma.classe.findMany({
             include: {
-                statut:{},
+                promo:{},
                 parcours:{},
-                cours:{},
-                note:{}
+                etudiant:{},
+                cours:{}
             }
         })
     },
-    updatePersonnel : async ({id_personnel, nom_personnel, prenom_personnel, mail_personnel, tel_personnel, ville_personnel, id_statut, nom_statut}) => {        
-        let nom = nom_personnel !== null ? nom_personnel : undefined
-        let prenom = prenom_personnel !== null ? prenom_personnel : undefined
-        let mail = mail_personnel !== null ? mail_personnel : undefined
-        let tel = tel_personnel !== null ? tel_personnel : undefined
-        let ville = ville_personnel !== null ? ville_personnel : undefined
-        
-        await prisma.personnel.update({
+    updateClasse : async ({id_classe, nom_classe, groupe, id_parcours, nom_parcours, id_promo, annees_promo}) => {        
+        let nom = nom_classe !== null ? nom_classe : undefined
+        let parcours = nom_parcours !== null ? nom_parcours : undefined
+        let promo = annees_promo !== null ? annees_promo : undefined    
+
+        await prisma.classe.update({
             where: {
-              id_personnel: id_personnel,
+                id_classe: id_classe,
             },
-            data: {
-                nom_personnel: nom,
-                prenom_personnel: prenom,
-                mail_personnel: mail,
-                tel_personnel: tel,
-                ville_personnel: ville,
-                statut: {
+            data:{
+                nom_classe : nom,
+                groupe : groupe,
+                parcours: {
                     connectOrCreate :
                     {
                         where : {
-                            id_statut : Number (id_statut)
+                            id_parcours : Number (id_parcours)
                         },
                         create:{
-                            nom_statut : nom_statut
+                            nom_parcours : parcours
+                        }
+                    }
+                },
+                promo: {
+                    connectOrCreate :
+                    {
+                        where : {
+                            id_promo : Number (id_promo)
+                        },
+                        create:{
+                            annees_promo : promo
                         }
                     }
                 }
             }
         })
-        return await prisma.personnel.findMany({
+        return await prisma.classe.findMany({
             include: {
-                statut:{},
+                promo:{},
                 parcours:{},
-                cours:{},
-                note:{}
+                etudiant:{},
+                cours:{}
             }
         })
     },
