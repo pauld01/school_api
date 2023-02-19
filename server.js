@@ -150,6 +150,13 @@ let schema = buildSchema(`
         addEtudiant(nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
         removeEtudiant(id_etudiant: Int!): [Etudiant]
         updateEtudiant(id_etudiant: Int!, nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
+
+        addCours(date_cours: String!, heure_debut: String!, heure_fin: String!, formateur: Int, id_matiere: Int, id_classe: Int): [Cours]
+        removeCours(id_cours: Int!): [Cours]
+        updateCours(id_cours: Int!, date_cours: String, heure_debut: String, heure_fin: String, formateur: Int, id_matiere: Int, id_classe: Int): [Cours]
+        addNote(date_note: String!, note: Int!, id_etudiant: Int!, id_matiere: Int!, id_personnel: Int!): [Note]
+        removeCours(id_note: Int!): [Note]
+        updateCours(id_note: Int!, date_note: String, note: Int, id_etudiant: Int, id_matiere: Int, id_personnel: Int): [Note]
     }
 `)
 
@@ -746,6 +753,85 @@ let root = {
     getCours : async () => {
         return await prisma.cours.findMany({
             include:{
+                personnel:{},
+                matiere:{},
+                classe:{}
+            }
+        })
+    },
+    addCours : async ({date_cours, heure_debut, heure_fin, formateur, id_matiere, id_classe}) => {
+        await prisma.cours.create({
+            data:{
+                date_cours : date_cours,
+                heure_debut : heure_debut,
+                heure_fin : heure_fin,
+                personnel: {
+                    connect:{
+                        formateur : Number (formateur)
+                    }
+                },
+                matiere: {
+                    connect:{
+                        id_matiere : Number (id_matiere)
+                    }
+                },
+                classe: {
+                    connect:{
+                        id_classe : Number (id_classe)
+                    }
+                }
+            }
+        })
+        return await prisma.cours.findMany({
+            include: {
+                personnel:{},
+                matiere:{},
+                classe:{}
+            }
+        })
+    },
+    removeCours : async ({id_cours}) => {
+        await prisma.cours.delete({
+            where:{
+                id_cours : id_cours 
+            }
+        })
+        return await prisma.cours.findMany({
+            include: {
+                personnel:{},
+                matiere:{},
+                classe:{}
+            }
+        })
+    },
+    updateCours : async ({id_cours, date_cours, heure_debut, heure_fin, formateur, id_matiere, id_classe}) => {        
+        await prisma.cours.update({
+            where:{
+                id_cours : id_cours 
+            },
+            data:{
+                date_cours : date_cours,
+                heure_debut : heure_debut,
+                heure_fin : heure_fin,
+                personnel: {
+                    connect:{
+                        formateur : Number (formateur)
+                    }
+                },
+                matiere: {
+                    connect:{
+                        id_matiere : Number (id_matiere)
+                    }
+                },
+                classe: {
+                    connect:{
+                        id_classe : Number (id_classe)
+                    }
+                }
+            }
+        })
+        return await prisma.cours.findMany({
+            include: {
                 personnel:{},
                 matiere:{},
                 classe:{}
