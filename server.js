@@ -141,9 +141,9 @@ let schema = buildSchema(`
         addParcours(nom_parcours: String!, programme: String, id_personnel: Int, id_pole: Int, nom_pole: String): [Parcours]
         removeParcours(id_parcours: Int!): [Parcours]
         updateParcours(id_parcours: Int!, nom_parcours: String, programme: String, id_personnel: Int!, id_pole: Int!, nom_pole: String): [Parcours]
-        addMatiere(nom_matiere: String!, id_parcours: Int!, nom_parcours: String): [Matiere]
+        addMatiere(nom_matiere: String!, id_parcours: Int!): [Matiere]
         removeMatiere(id_matiere: Int!): [Matiere]
-        updateMatiere(id_matiere: Int!, nom_matiere: String, id_parcours: Int!, nom_parcours: String): [Matiere]
+        updateMatiere(id_matiere: Int!, nom_matiere: String, id_parcours: Int!): [Matiere]
         addClasse(nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
         removeClasse(id_classe: Int!): [Classe]
         updateClasse(id_classe: Int!, nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
@@ -481,25 +481,13 @@ let root = {
             }
         })
     },
-    addMatiere : async ({nom_matiere, id_parcours, nom_parcours}) => {
+    addMatiere : async ({nom_matiere, id_parcours}) => {
         let nom = nom_matiere !== null ? nom_matiere : undefined
-        let parcours = nom_parcours !== null ? nom_parcours : undefined
-        let p = id_parcours !== null ? id_parcours : undefined
-
+        
         await prisma.matiere.create({
             data:{
                 nom_matiere : nom,
-                parcours: {
-                    connectOrCreate :
-                    {
-                        where : {
-                            id_parcours : Number (p)
-                        },
-                        create:{
-                            nom_parcours : parcours
-                        }
-                    }
-                }
+                id_parcours: id_parcours
             }
         })
         return await prisma.matiere.findMany({
@@ -524,9 +512,9 @@ let root = {
             }
         })
     },
-    updateMatiere : async ({id_matiere, nom_matiere, id_parcours, nom_parcours}) => {               
+    updateMatiere : async ({id_matiere, nom_matiere, id_parcours}) => {               
         let nom = nom_matiere !== null ? nom_matiere : undefined
-        let parcours = nom_parcours !== null ? nom_parcours : undefined
+       
 
         await prisma.matiere.update({
             where: {
@@ -534,17 +522,7 @@ let root = {
             },
             data:{
                 nom_matiere : nom,
-                parcours: {
-                    connectOrCreate :
-                    {
-                        where : {
-                            id_parcours : Number (id_parcours)
-                        },
-                        create:{
-                            nom_parcours : parcours
-                        }
-                    }
-                }
+                id_parcours: id_parcours
             }
         })
         return await prisma.matiere.findMany({
