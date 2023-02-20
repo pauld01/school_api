@@ -693,12 +693,12 @@ let root = {
     addCours : async ({date_cours, heure_debut, heure_fin, formateur, id_matiere, id_classe}) => {
         await prisma.cours.create({
             data:{
-                date_cours : date_cours,
-                heure_debut : heure_debut,
-                heure_fin : heure_fin,
+                date_cours : new Date(date_cours),
+                heure_debut : new Date(heure_debut),
+                heure_fin : new Date(heure_fin),
                 personnel: {
                     connect:{
-                        formateur : Number (formateur)
+                        id_personnel : Number (formateur)
                     }
                 },
                 matiere: {
@@ -781,9 +781,8 @@ let root = {
     addNote : async ({date_note, note, id_etudiant, id_matiere, formateur}) => {
         await prisma.note.create({
             data:{
-                date_note : date_note,
+                date_note : new Date(date_note),
                 note : note,
-                heure_fin : heure_fin,
                 etudiant: {
                     connect:{
                         id_etudiant : Number (id_etudiant)
@@ -796,7 +795,7 @@ let root = {
                 },
                 personnel: {
                     connect:{
-                        formateur : Number (formateur)
+                        id_personnel : Number (formateur)
                     }
                 }
             }
@@ -823,15 +822,14 @@ let root = {
             }
         })
     },
-    updateNote : async ({id_note, note, id_etudiant, id_matiere, formateur}) => {        
+    updateNote : async ({id_note, date_note, note, id_etudiant, id_matiere, formateur}) => {        
         await prisma.note.update({
             where:{
                 id_note : id_note 
             },
             data:{
-                date_note : date_note,
+                date_note : new Date(date_note),
                 note : note,
-                heure_fin : heure_fin,
                 etudiant: {
                     connect:{
                         id_etudiant : Number (id_etudiant)
@@ -844,7 +842,7 @@ let root = {
                 },
                 personnel: {
                     connect:{
-                        formateur : Number (formateur)
+                        id_personnel : Number (formateur)
                     }
                 }
             }
