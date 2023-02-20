@@ -116,19 +116,23 @@ let schema = buildSchema(`
         getPoles : [Pole]
         getStatuts : [Statut]
         getPromos : [Promo]
+        
         getPersonnels : [Personnel]
         getPersonnelByNom(nom_personnel : String!) : Personnel
+
         getParcours : [Parcours]
         getMatieres : [Matiere]
         getClasses : [Classe]
+        
         getEtudiants : [Etudiant]
-        getEtudiantByNom(nom_etudiant : String!) : Etudiant
+        getEtudiantByNom(nom : String!) : Etudiant
+        getEtudiantsFromVille(ville_etudiant : String!) : [Etudiant]
+        getAgeEtudiant(id_etudiant: Int!) : Int
+
         getCours : [Cours]
         getNotes : [Note]
         
         getMoyenneClasseMatiere : Int
-        getAgeEleve : Int
-        getEtudiantByCommunCity : [Etudiant]
         getNumberEtudiantInClasse : Int
         getNumberEtudiantInParcours : Int
         getNumberEtudiantInPromo : Int
@@ -139,30 +143,39 @@ let schema = buildSchema(`
         addPole(nom_pole: String!): [Pole]
         removePole(id_pole: Int!): [Pole]
         updatePole(id_pole: Int!, nom_pole: String!): [Pole]
+        
         addStatut(nom_statut: String!): [Statut]
         removeStatut(id_statut: Int!): [Statut]
         updateStatut(id_statut: Int!, nom_statut: String!): [Statut]
+        
         addPromo(annees_promo: String!): [Promo]
         removePromo(id_promo: Int!): [Promo]
         updatePromo(id_promo: Int!, annees_promo: String!): [Promo]
+        
         addPersonnel(nom_personnel: String!, prenom_personnel: String, mail_personnel: String, tel_personnel: String, ville_personnel: String, id_statut: Int!, nom_statut: String): [Personnel]
         removePersonnel(id_personnel: Int!): [Personnel]
         updatePersonnel(id_personnel: Int!, nom_personnel: String, prenom_personnel: String, mail_personnel: String, tel_personnel: String, ville_personnel: String, id_statut: Int!, nom_statut: String): [Personnel]
+        
         addParcours(nom_parcours: String!, programme: String, id_personnel: Int, id_pole: Int, nom_pole: String): [Parcours]
         removeParcours(id_parcours: Int!): [Parcours]
         updateParcours(id_parcours: Int!, nom_parcours: String, programme: String, id_personnel: Int!, id_pole: Int!, nom_pole: String): [Parcours]
+        
         addMatiere(nom_matiere: String!, id_parcours: Int!): [Matiere]
         removeMatiere(id_matiere: Int!): [Matiere]
         updateMatiere(id_matiere: Int!, nom_matiere: String, id_parcours: Int!): [Matiere]
+        
         addClasse(nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
         removeClasse(id_classe: Int!): [Classe]
         updateClasse(id_classe: Int!, nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
+        
         addEtudiant(nom_etudiant: String!, prenom_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
         removeEtudiant(id_etudiant: Int!): [Etudiant]
         updateEtudiant(id_etudiant: Int!, nom_etudiant: String, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
+        
         addCours(date_cours: String!, heure_debut: String!, heure_fin: String!, formateur: Int, id_matiere: Int, id_classe: Int): [Cours]
         removeCours(id_cours: Int!): [Cours]
         updateCours(id_cours: Int!, date_cours: String, heure_debut: String, heure_fin: String, formateur: Int, id_matiere: Int, id_classe: Int): [Cours]
+        
         addNote(date_note: String!, note: Int!, id_etudiant: Int!, id_matiere: Int!, formateur: Int!): [Note]
         removeNote(id_note: Int!): [Note]
         updateNote(id_note: Int!, date_note: String, note: Int, id_etudiant: Int, id_matiere: Int, formateur: Int): [Note]
@@ -628,6 +641,36 @@ let root = {
                 note:{}
             }
         })
+    },
+    getEtudiantByNom : async({nom}) => {
+        return await prisma.etudiant.findFirst({
+            where:{
+                nom_etudiant : nom
+            },
+            include:{
+                classe:{},
+                note:{}
+            }
+        })
+    },
+    getEtudiantsFromVille : async({ville_etudiant}) => {
+        return await prisma.etudiant.findMany({
+            where:{
+                ville_etudiant : ville_etudiant
+            }
+        })
+    },
+    getAgeEtudiant : async({id_etudiant}) => {
+        let etudiant = await prisma.etudiant.findUnique({
+            where:{
+                id_etudiant : id_etudiant
+            }
+        })
+        
+        let current_year = new Date().getFullYear()
+        let age = current_year - etudiant.anneeNaissance_etudiant
+
+        return age;
     },
     addEtudiant : async ({nom_etudiant, prenom_etudiant, tel_etudiant, anneeNaissance_etudiant, ville_etudiant, id_classe}) => {
         let prenom = prenom_etudiant !== null ? prenom_etudiant : undefined
