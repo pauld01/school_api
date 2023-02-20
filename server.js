@@ -2,6 +2,7 @@ import express from "express"
 import { buildSchema } from "graphql"
 import { PrismaClient } from "@prisma/client"
 import { graphqlHTTP } from "express-graphql"
+import { count } from "console"
 
 const app = express()
 const prisma = new PrismaClient()
@@ -130,9 +131,10 @@ let schema = buildSchema(`
         getAgeEtudiant(id_etudiant: Int!) : Int
 
         getCours : [Cours]
+
         getNotes : [Note]
+        getMoyenneMatiere(id_matiere: Int!) : String
         
-        getMoyenneClasseMatiere : Int
         getNumberEtudiantInClasse : Int
         getNumberEtudiantInParcours : Int
         getNumberEtudiantInPromo : Int
@@ -920,6 +922,24 @@ let root = {
                 personnel:{}
             }
         })
+    },
+    getMoyenneMatiere : async ({id_matiere}) => {       
+        let notes = await prisma.note.findMany({
+            where:{
+                id_matiere : id_matiere
+            }
+        })
+
+        let nb_notes = notes.length
+        let total_notes = 0
+
+        for (var i in notes) {
+            total_notes = total_notes + notes[i].note
+        }
+
+        let moyenne = total_notes / nb_notes 
+
+        return moyenne
     }
 }
 
