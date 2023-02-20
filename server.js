@@ -133,12 +133,12 @@ let schema = buildSchema(`
         getCours : [Cours]
 
         getNotes : [Note]
-        getMoyenneMatiere(id_matiere: Int!) : String
         
-        getNumberEtudiantInClasse : Int
-        getNumberEtudiantInParcours : Int
-        getNumberEtudiantInPromo : Int
-        getNumberEtudiantInPole : Int
+        getMoyenneMatiere(id_matiere: Int!) : String
+        getNumberEtudiantsInClasse(id_classe: Int!) : Int
+        getNumberEtudiantInParcours(id_parcours: Int!) : Int
+        getNumberEtudiantInPromo(id_promo: Int!) : Int
+        getNumberEtudiantInPole(id_pole: Int!) : Int
     }
 
     type Mutation {
@@ -940,6 +940,15 @@ let root = {
         let moyenne = total_notes / nb_notes 
 
         return moyenne
+    },
+    getNumberEtudiantsInClasse : async ({id_classe}) => {
+        let etudiants = await prisma.etudiant.findMany({
+            where:{
+                id_classe : id_classe
+            }
+        })
+
+        return etudiants.length
     }
 }
 
