@@ -969,6 +969,26 @@ let root = {
         }
 
         return nb_etudiants
+    },
+    getNumberEtudiantsInPromo : async ({id_promo}) => {
+        let classes = await prisma.classe.findMany({
+            where:{
+                id_promo : id_promo
+            }
+        })
+
+        let nb_etudiants = 0
+
+        for (var i in classes) {
+            let etudiants = await prisma.etudiant.findMany({
+                where:{
+                    id_classe : classes[i].id
+                }
+            })
+            nb_etudiants = nb_etudiants + etudiants.length
+        }
+
+        return nb_etudiants
     }
 }
 
