@@ -147,9 +147,9 @@ let schema = buildSchema(`
         addClasse(nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
         removeClasse(id_classe: Int!): [Classe]
         updateClasse(id_classe: Int!, nom_classe: String!, groupe: Int!, id_parcours: Int!, nom_parcours: String, id_promo: Int, annees_promo: String): [Classe]
-        addEtudiant(nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
+        addEtudiant(nom_etudiant: String!, prenom_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
         removeEtudiant(id_etudiant: Int!): [Etudiant]
-        updateEtudiant(id_etudiant: Int!, nom_etudiant: String!, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
+        updateEtudiant(id_etudiant: Int!, nom_etudiant: String, prenom_etudiant: String, mail_etudiant: String, tel_etudiant: String, anneeNaissance_etudiant: Int, ville_etudiant: String, id_classe: Int): [Etudiant]
         addCours(date_cours: String!, heure_debut: String!, heure_fin: String!, formateur: Int, id_matiere: Int, id_classe: Int): [Cours]
         removeCours(id_cours: Int!): [Cours]
         updateCours(id_cours: Int!, date_cours: String, heure_debut: String, heure_fin: String, formateur: Int, id_matiere: Int, id_classe: Int): [Cours]
@@ -606,9 +606,9 @@ let root = {
             }
         })
     },
-    addEtudiant : async ({nom_etudiant, prenom_etudiant, mail_etudiant, tel_etudiant, anneeNaissance_etudiant, ville_etudiant, id_classe}) => {
+    addEtudiant : async ({nom_etudiant, prenom_etudiant, tel_etudiant, anneeNaissance_etudiant, ville_etudiant, id_classe}) => {
         let prenom = prenom_etudiant !== null ? prenom_etudiant : undefined
-        let mail = mail_etudiant !== null ? mail_etudiant : undefined
+        let mail = prenom_etudiant+'.'+nom_etudiant+'@efrei.net'
         let tel = tel_etudiant !== null ? tel_etudiant : undefined
         let naissance = anneeNaissance_etudiant !== null ? anneeNaissance_etudiant : undefined
         let ville = ville_etudiant !== null ? ville_etudiant : undefined
