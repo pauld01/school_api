@@ -515,7 +515,6 @@ let root = {
     updateMatiere : async ({id_matiere, nom_matiere, id_parcours}) => {               
         let nom = nom_matiere !== null ? nom_matiere : undefined
        
-
         await prisma.matiere.update({
             where: {
                 id_matiere: id_matiere,
@@ -543,36 +542,13 @@ let root = {
             }
         })
     },
-    addClasse : async ({nom_classe, groupe, id_parcours, nom_parcours, id_promo, annees_promo}) => {
-        let parcours = nom_parcours !== null ? nom_parcours : undefined
-        let promo = annees_promo !== null ? annees_promo : undefined
-
+    addClasse : async ({nom_classe, groupe, id_parcours, id_promo}) => {
         await prisma.classe.create({
             data:{
                 nom_classe : nom_classe,
                 groupe : groupe,
-                parcours: {
-                    connectOrCreate :
-                    {
-                        where : {
-                            id_parcours : Number (id_parcours)
-                        },
-                        create:{
-                            nom_parcours : parcours
-                        }
-                    }
-                },
-                promo: {
-                    connectOrCreate :
-                    {
-                        where : {
-                            id_promo : Number (id_promo)
-                        },
-                        create:{
-                            annees_promo : promo
-                        }
-                    }
-                }
+                id_parcours: Number (id_parcours),
+                id_promo: Number (id_promo)
             }
         })
         return await prisma.classe.findMany({
@@ -601,38 +577,16 @@ let root = {
     },
     updateClasse : async ({id_classe, nom_classe, groupe, id_parcours, nom_parcours, id_promo, annees_promo}) => {        
         let nom = nom_classe !== null ? nom_classe : undefined
-        let parcours = nom_parcours !== null ? nom_parcours : undefined
-        let promo = annees_promo !== null ? annees_promo : undefined    
 
         await prisma.classe.update({
             where: {
                 id_classe: id_classe,
             },
             data:{
-                nom_classe : nom,
+                nom_classe : nom_classe,
                 groupe : groupe,
-                parcours: {
-                    connectOrCreate :
-                    {
-                        where : {
-                            id_parcours : Number (id_parcours)
-                        },
-                        create:{
-                            nom_parcours : parcours
-                        }
-                    }
-                },
-                promo: {
-                    connectOrCreate :
-                    {
-                        where : {
-                            id_promo : Number (id_promo)
-                        },
-                        create:{
-                            annees_promo : promo
-                        }
-                    }
-                }
+                id_parcours: Number (id_parcours),
+                id_promo: Number (id_promo)
             }
         })
         return await prisma.classe.findMany({
