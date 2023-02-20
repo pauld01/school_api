@@ -962,7 +962,7 @@ let root = {
         for (var i in classes) {
             let etudiants = await prisma.etudiant.findMany({
                 where:{
-                    id_classe : classes[i].id
+                    id_classe : classes[i].id_classe
                 }
             })
             nb_etudiants = nb_etudiants + etudiants.length
@@ -982,14 +982,41 @@ let root = {
         for (var i in classes) {
             let etudiants = await prisma.etudiant.findMany({
                 where:{
-                    id_classe : classes[i].id
+                    id_classe : classes[i].id_classe
                 }
             })
             nb_etudiants = nb_etudiants + etudiants.length
         }
 
         return nb_etudiants
-    }
+    },
+    getNumberEtudiantsInPole : async ({id_pole}) => {
+        let parcours = await prisma.parcours.findMany({
+            where:{
+                id_pole : id_pole
+            }
+        })
+
+        let nb_etudiants = 0
+
+        for (var i in parcours) {
+            let classes = await prisma.classe.findMany({
+                where:{
+                    id_parcours : parcours[i].id_parcours
+                }
+            })
+            for (var j in classes){
+                let etudiants = await prisma.etudiant.findMany({
+                    where:{
+                        id_classe : classes[i].id_classe
+                    }
+                })
+                nb_etudiants = nb_etudiants + etudiants.length
+            }
+        }
+        
+        return nb_etudiants
+    },
 }
 
 app.use("/school", graphqlHTTP({
