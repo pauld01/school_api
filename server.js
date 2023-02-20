@@ -117,12 +117,22 @@ let schema = buildSchema(`
         getStatuts : [Statut]
         getPromos : [Promo]
         getPersonnels : [Personnel]
+        getPersonnelByNom(nom_personnel : String!) : Personnel
         getParcours : [Parcours]
         getMatieres : [Matiere]
         getClasses : [Classe]
         getEtudiants : [Etudiant]
+        getEtudiantByNom(nom_etudiant : String!) : Etudiant
         getCours : [Cours]
         getNotes : [Note]
+        
+        getMoyenneClasseMatiere : Int
+        getAgeEleve : Int
+        getEtudiantByCommunCity : [Etudiant]
+        getNumberEtudiantInClasse : Int
+        getNumberEtudiantInParcours : Int
+        getNumberEtudiantInPromo : Int
+        getNumberEtudiantInPole : Int
     }
 
     type Mutation {
@@ -276,6 +286,19 @@ let root = {
     },
     getPersonnels : async () => {
         return await prisma.personnel.findMany({
+            include:{
+                statut:{},
+                parcours:{},
+                cours:{},
+                note:{}
+            }
+        })
+    },
+    getPersonnelByNom : async({nom_personnel}) => {
+        return await prisma.personnel.findFirst({
+            where:{
+                nom_personnel : nom_personnel
+            },
             include:{
                 statut:{},
                 parcours:{},
