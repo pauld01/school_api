@@ -131,6 +131,7 @@ let schema = buildSchema(`
         getAgeEtudiant(id_etudiant: Int!) : Int
 
         getCours : [Cours]
+        getTempsCoursMinutes(id_cours: Int!): Int
 
         getNotes : [Note]
         
@@ -139,6 +140,7 @@ let schema = buildSchema(`
         getNumberEtudiantsInParcours(id_parcours: Int!) : Int
         getNumberEtudiantsInPromo(id_promo: Int!) : Int
         getNumberEtudiantsInPole(id_pole: Int!) : Int
+
     }
 
     type Mutation {
@@ -613,7 +615,7 @@ let root = {
             }
         })
     },
-    updateClasse : async ({id_classe, nom_classe, groupe, id_parcours, nom_parcours, id_promo, annees_promo}) => {        
+    updateClasse : async ({id_classe, nom_classe, groupe, id_parcours, id_promo}) => {        
         let nom = nom_classe !== null ? nom_classe : undefined
 
         await prisma.classe.update({
@@ -758,12 +760,34 @@ let root = {
             }
         })
     },
+    getTempsCoursMinutes : async({id_cours}) => {
+        let temps_cours = 0
+        
+        let cours = await prisma.cours.findUnique({
+            where:{
+                id_cours : id_cours
+            }
+        })
+        
+        let debut_cours = new Date(cours.heure_debut).getTime()
+        let fin_cours = new Date(cours.heure_fin).getTime()
+
+        temps_cours =(fin_cours - debut_cours)
+
+        return ( Math.floor((temps_cours/1000/60) << 0))
+    },
     addCours : async ({date_cours, heure_debut, heure_fin, formateur, id_matiere, id_classe}) => {
+        let date_cours_format = new Date(date_cours)
+        let heure_debut_format = new Date(date_cours+"T"+heure_debut+"Z")
+        let heure_fin_format = new Date(date_cours+"T"+heure_fin+"Z")
+
+        console.log(heure_debut_format)
+
         await prisma.cours.create({
             data:{
-                date_cours : new Date(date_cours),
-                heure_debut : new Date(heure_debut),
-                heure_fin : new Date(heure_fin),
+                date_cours : date_cours_format,
+                heure_debut : heure_debut_format,
+                heure_fin : heure_fin_format,
                 personnel: {
                     connect:{
                         id_personnel : Number (formateur)
@@ -804,17 +828,21 @@ let root = {
         })
     },
     updateCours : async ({id_cours, date_cours, heure_debut, heure_fin, formateur, id_matiere, id_classe}) => {        
+        let date_cours_format = new Date(date_cours)
+        let heure_debut_format = new Date(date_cours+"T"+heure_debut+"Z")
+        let heure_fin_format = new Date(date_cours+"T"+heure_fin+"Z")
+
         await prisma.cours.update({
             where:{
                 id_cours : id_cours 
             },
             data:{
-                date_cours : date_cours,
-                heure_debut : heure_debut,
-                heure_fin : heure_fin,
+                date_cours : date_cours_format,
+                heure_debut : heure_debut_format,
+                heure_fin : heure_fin_format,
                 personnel: {
                     connect:{
-                        formateur : Number (formateur)
+                        id_personnel : Number (formateur)
                     }
                 },
                 matiere: {
